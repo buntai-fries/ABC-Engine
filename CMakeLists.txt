@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.26)
+project(ABC_Engine VERSION 1.0.0)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 17)
+
+find_package(OpenGL REQUIRED)
+
+add_executable(ABC_Engine
+    src/glad.c
+    src/main.cpp
+)
+
+target_include_directories(ABC_Engine PRIVATE
+    ${CMAKE_SOURCE_DIR}/dependencies
+    ${CMAKE_SOURCE_DIR}/dependencies/glad
+    ${CMAKE_SOURCE_DIR}/dependencies/GLFW
+)
+
+# Link glfw manually (since it's not system-installed)
+target_link_directories(ABC_Engine PRIVATE
+    ${CMAKE_SOURCE_DIR}/dependencies/GLFW/lib
+)
+
+target_link_libraries(ABC_Engine PRIVATE
+    glfw3
+    OpenGL::GL
+)

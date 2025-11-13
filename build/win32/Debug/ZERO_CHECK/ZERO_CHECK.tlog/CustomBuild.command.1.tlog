@@ -1,0 +1,10 @@
+^C:\USERS\ANUP-PC\DOCUMENTS\ABC ENGINE\BUILD\CMAKEFILES\BE46ADE3F2E2515EC17844FB57EFEF5F\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/ANUP-PC/Documents/ABC Engine" "-BC:/Users/ANUP-PC/Documents/ABC Engine/build" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/ANUP-PC/Documents/ABC Engine/build/ABC_Engine.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
