@@ -378,6 +378,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="C:\Users\ANUP-PC\Documents\ABC Engine\src\glad.c" />
     <ClCompile Include="C:\Users\ANUP-PC\Documents\ABC Engine\src\main.cpp" />
+    <ClInclude Include="C:\Users\ANUP-PC\Documents\ABC Engine\src\Shader.hpp" />
+    <ClCompile Include="C:\Users\ANUP-PC\Documents\ABC Engine\src\Shader.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

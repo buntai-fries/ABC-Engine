@@ -9,6 +9,8 @@ find_package(OpenGL REQUIRED)
 add_executable(ABC_Engine
     src/glad.c
     src/main.cpp
+    src/Shader.hpp
+    src/Shader.cpp
 )
 
 target_include_directories(ABC_Engine PRIVATE
