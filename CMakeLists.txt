@@ -6,6 +6,8 @@ set(CMAKE_C_STANDARD 17)
 
 find_package(OpenGL REQUIRED)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
 add_executable(ABC_Engine
     src/glad.c
     src/main.cpp

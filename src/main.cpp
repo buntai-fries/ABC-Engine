@@ -36,7 +36,7 @@ int main()
         return -1;
     }
 
-    Shader ourShader("C:/Users/ANUP-PC/Documents/ABC Engine/src/shader.vs", "C:/Users/ANUP-PC/Documents/ABC Engine/src/shader.frag");
+    Shader ourShader("shader/shader.vs", "shader/shader.frag");
 
     // check the number of vertex attribute available
     int nrAttributes;
