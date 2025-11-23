@@ -36,13 +36,13 @@ int main()
         return -1;
     }
 
-    Shader ourShader("shader/shader.vs", "shader/shader.frag");
+    Shader ourShader("assets/shader/shader.vs", "assets/shader/shader.frag");
 
     // check the number of vertex attribute available
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     std::cout << "\nMaximum nr of vertex attributes supported: " << nrAttributes << std::endl;
-
+    
     // Vertex-data
     float vertices[] =
         {
@@ -62,10 +62,10 @@ int main()
 
     // linking vertex attribute
     // interpreting the data
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void* )0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float), (void* )(3*sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     /*

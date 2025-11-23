@@ -1,3 +1,0 @@
-C:/Users/ANUP-PC/Documents/ABC Engine/build/CMakeFiles/ABC_Engine.dir
-C:/Users/ANUP-PC/Documents/ABC Engine/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/ANUP-PC/Documents/ABC Engine/build/CMakeFiles/ZERO_CHECK.dir

@@ -6,12 +6,16 @@ set(CMAKE_C_STANDARD 17)
 
 find_package(OpenGL REQUIRED)
 
+# Manager folder directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
+
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 
 add_executable(ABC_Engine
     src/glad.c
     src/main.cpp
-    src/Shader.hpp
     src/Shader.cpp
 )
 

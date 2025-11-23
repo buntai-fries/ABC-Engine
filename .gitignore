@@ -1,28 +1,5 @@
-# Build directory (CMake build output)
 build/
-
-# Runtime directory (where exe + copied shaders go)
 bin/
-
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-
-# VS Code configs (optional)
-.vscode/
-
-# Executables
-*.exe
-
-# Object files
-*.o
-*.obj
-
-# Libraries
-*.dll
-*.lib
-*.so
-*.a
+CMakeLists.txt
+desktop.ini
 
