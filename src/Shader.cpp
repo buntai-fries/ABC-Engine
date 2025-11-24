@@ -2,9 +2,6 @@
 
 Shader::Shader(const char *VertexPath, const char *FragmentPath)
 {
-    // To gate keep the constructor
-    bool run_shader = false;
-
     std::string vertexShaderCode, fragmentShaderCode;
     std::ifstream vShaderFile, fShaderFile;
 
@@ -27,20 +24,11 @@ Shader::Shader(const char *VertexPath, const char *FragmentPath)
 
             vertexShaderCode = vShaderStream.str();
             fragmentShaderCode = fShaderStream.str();
-
-            run_shader = true;
-
         }
     }
     catch (std::ifstream::failure e)
     {
         std::cerr << "ERROR_CANNOT_READ_FILE." << e.what() << '\n';
-    }
-
-    if (!run_shader)
-    {
-        std::cout << "Stoping immediately";
-        return;
     }
 
     const char *vertexShaderSource;
@@ -103,4 +91,3 @@ void Shader::useID()
 {
     glUseProgram(ID);
 }
-

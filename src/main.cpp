@@ -42,13 +42,13 @@ int main()
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     std::cout << "\nMaximum nr of vertex attributes supported: " << nrAttributes << std::endl;
-    
+
     // Vertex-data
     float vertices[] =
         {
-            -0.4f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-            -0.3f, 0.1f, 0.0f, 0.0f, 1.0f, 0.0f,
-            -0.5f, 0.1f, 0.0f, 0.0f, 0.0f, 1.0f};
+            -0.4f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f,
+            -0.3f, 0.1f, 1.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f, 0.1f, 1.0f, 0.0f, 0.0f, 1.0f};
 
     GLuint VBO, VAO; // unsigned int
     // VAO
@@ -68,12 +68,6 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    /*
-    // ???
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    */
-
     // render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -87,6 +81,7 @@ int main()
         ourShader.useID();
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDeleteBuffers(1, &VBO);
 
         // swapping buffer and poll events
         glfwSwapBuffers(window);
@@ -95,7 +90,6 @@ int main()
 
     // de-allocate all resources once they've outlived their purpose:
     glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
 
     glfwTerminate();
     return 0;
@@ -112,5 +106,6 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);
+        std::cout << "\nManual Closing...\n";
     }
 }
