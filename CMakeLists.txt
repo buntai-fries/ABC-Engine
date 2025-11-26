@@ -16,6 +16,15 @@ add_executable(ABC_Engine
     src/glad.c
     src/main.cpp
     src/Shader.cpp
+    # ImGui core
+    dependencies/imgui/imgui.cpp
+    dependencies/imgui/imgui_draw.cpp
+    dependencies/imgui/imgui_widgets.cpp
+    dependencies/imgui/imgui_tables.cpp
+
+    # ImGui backends
+    dependencies/imgui/backends/imgui_impl_glfw.cpp
+    dependencies/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 target_include_directories(ABC_Engine PRIVATE
