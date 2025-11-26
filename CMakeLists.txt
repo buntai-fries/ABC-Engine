@@ -4,6 +4,11 @@ project(ABC_Engine VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 17)
 
+# For MSVC only
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # /MD
+endif()
+
 find_package(OpenGL REQUIRED)
 
 # Manager assets directory
