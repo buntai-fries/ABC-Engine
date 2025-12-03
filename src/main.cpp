@@ -1,156 +1,104 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
+
 #include "Shader.hpp"
 
-#include <iostream> // debug purpose
-
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_glfw.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
-
-void framebuffer_size_callback(GLFWwindow *, int width, int height);
-void processInput(GLFWwindow *window);
-
-const GLuint SCR_HEI = 800;
-const GLuint SCR_WID = 1500;
+#define STB_IMAGE_IMPLEMENTATION
+#include "stbimage/stb_image.h"
 
 int main()
 {
     glfwInit();
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    std::cout << "GLFW initalize successfully.";
-
-    GLFWwindow *window = glfwCreateWindow(SCR_WID, SCR_HEI, "ABC Engine", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(720, 480, "ABC Engine", NULL, NULL);
     if (!window)
     {
-        std::cout << "\nError opening window\n"
-                  << window;
+        std::cout << "Error creating the windows" << "Info: " << window << std::endl;
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwMakeContextCurrent(window); // loads the glad which is below
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "\nThe loader didn't load.\n";
-        return -1;
+        std::cout << "Error loading the glad." << std::endl;
+        glfwTerminate();
+        return -2;
     }
 
-    // ImGui init
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    (void)io;
-    ImGui::StyleColorsDark();
-    // BACKENDS (IMPORTANT)
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    std::cout << gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    // Shader Class
-    Shader ourShader("assets/shader/shader.vs", "assets/shader/shader.frag");
+    Shader OurShader("assets/shader/shader.vs", "assets/shader/shader.frag");
 
-    // check the number of vertex attribute available
-    int nrAttributes;
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+    // triangle vertices
+    float vertices[] = {
+        // position   //    color       // texture
+        +0.0f, +1.0f, 1.0f, 0.0f, 0.0f, 0.5f, 1.0f,
+        -1.0f, +0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f,
+        +1.0f, +0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.5f};
 
-    // Vertex-data
-    float vertices[] =
-        {
-            -0.4f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-            -0.3f, 0.1f, 0.0f, 0.0f, 1.0f, 0.0f,
-            -0.5f, 0.1f, 0.0f, 0.0f, 0.0f, 1.0f};
-
-    GLuint VBO, VAO; // unsigned int
-    // VAO
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    // VBO
+    GLuint VBO, VAO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
 
-    // linking vertex attribute
-    // interpreting the data
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void *)0);
+    glEnableVertexArrayAttrib(VAO, 0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void *)(2 * sizeof(float)));
+    glEnableVertexArrayAttrib(VAO, 1);
 
-    // render loop
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void *)(5 * sizeof(float)));
+    glEnableVertexArrayAttrib(VAO, 2);
+
+    // texture
+    GLuint tex;
+    int width, height, nrChannels;
+
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    
+    // set the texture wrapping/filtering options (on the currently bound texture object)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    unsigned char* data = stbi_load("assets/image/wall.jpg", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        std::cout << "\nSuccessfully load the texture.\n" << std::endl;
+    }
+    else
+    {
+        std::cout << "\nFailed to load the texture.\n" << data << std::endl;
+        glfwTerminate();
+        return -3;
+    }
+    stbi_image_free(data);
+
+
+    // rendering loop
     while (!glfwWindowShouldClose(window))
     {
-        // input
-        processInput(window);
+        // rendering commands
+        OurShader.useID();
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // poll events
         glfwPollEvents();
-
-        // Start new frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        ImGui::SetNextWindowPos(ImVec2(0, 0));      // stick to left
-        ImGui::SetNextWindowSize(ImVec2(300, 800)); // bigger window
-
-        
-
-        // Rendering commands
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        ourShader.useID();
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDeleteBuffers(1, &VBO);
-
-        // UI
-        ImGui::Begin("Rendering Details: ");
-        ImGui::Text("Shader ID: %d", ourShader.ID);
-        ImGui::Text("Max Vertex Attribute(Supported): %d", nrAttributes);
-        ImGui::Text("Screen Width: %d", SCR_WID);
-        ImGui::Text("Screen Width: %d", SCR_HEI);
-        ImGui::End();
-
-        ImGui::Render();
-        glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // swap buffers
+        // swap buffer
         glfwSwapBuffers(window);
     }
-
-    // de-allocate all resources once they've outlived their purpose:
     glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    glfwTerminate();
     return 0;
-}
-
-void framebuffer_size_callback(GLFWwindow *, int width, int height)
-{
-    glViewport(0, 0, width, height);
-    std::cout << "\n_frame buffer size callback_\n";
-}
-
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, true);
-        std::cout << "\nManual Closing...\n";
-    }
 }
