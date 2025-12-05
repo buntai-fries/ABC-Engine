@@ -7,11 +7,14 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stbimage/stb_image.h"
 
+GLuint AlphaMultiplier = 1.0f;
+void ProcessInput(GLFWwindow *window);
+
 int main()
 {
     glfwInit();
 
-    GLFWwindow *window = glfwCreateWindow(720, 480, "ABC Engine", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(720, 500, "ABC Engine", NULL, NULL);
     if (!window)
     {
         std::cout << "Error creating the windows" << "Info: " << window << std::endl;
@@ -31,12 +34,13 @@ int main()
 
     Shader OurShader("assets/shader/shader.vs", "assets/shader/shader.frag");
 
+    // First Triangle
     // triangle vertices
     float vertices[] = {
         // position   //    color       // texture
-        +0.0f, +1.0f, 1.0f, 0.0f, 0.0f, 0.5f, 1.0f,
-        -1.0f, +0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f,
-        +1.0f, +0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.5f};
+        -0.5f, +0.5f, 1.0f, 0.0f, 0.0f, 0.5f, 1.0f,
+        -0.5f, +0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f,
+        +0.5f, +0.1f, 0.0f, 0.0f, 1.0f, 1.0f, 0.5f};
 
     GLuint VBO, VAO;
     glGenBuffers(1, &VBO);
@@ -60,36 +64,45 @@ int main()
 
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    
+
     // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    unsigned char* data = stbi_load("assets/image/wall.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("assets/image/awesomeface.png", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-        std::cout << "\nSuccessfully load the texture.\n" << std::endl;
+        std::cout << "\nSuccessfully load the texture.\n"
+                  << std::endl;
     }
     else
     {
-        std::cout << "\nFailed to load the texture.\n" << data << std::endl;
+        std::cout << "\nFailed to load the texture.\n"
+                  << data << std::endl;
         glfwTerminate();
         return -3;
     }
     stbi_image_free(data);
 
-
     // rendering loop
     while (!glfwWindowShouldClose(window))
     {
+        // render
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         // rendering commands
         OurShader.useID();
+        // First Triangle
         glBindTexture(GL_TEXTURE_2D, tex);
         glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // Second Triangle
+        glBindVertexArray(VAO1);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // poll events
@@ -97,8 +110,29 @@ int main()
         // swap buffer
         glfwSwapBuffers(window);
     }
+    // First Triangle
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    // 2nd Triangle
+    glDeleteVertexArrays(1, &VAO1);
+    glDeleteBuffers(1, &VBO1);
 
     return 0;
 }
+
+/*
+void ProcessInput(GLFWwindow *window)
+{
+    if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+    {
+        if (AlphaMultiplier == 1)
+        {
+            AlphaMultiplier += 0.1;
+        }
+        else
+        {
+            AlphaMultiplier = 1;
+        }
+    }
+}
+*/
