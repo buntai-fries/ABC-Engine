@@ -57,6 +57,28 @@ int main()
 
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void *)(5 * sizeof(float)));
     glEnableVertexArrayAttrib(VAO, 2);
+    
+    // Second Triangle
+    // triangle vertices
+    float vertices1[] = {
+        // position   //    color
+        +0.5f, +0.5f, 1.0f, 0.0f, 0.0f,
+        -0.5f, +0.1f, 0.0f, 1.0f, 0.0f,
+        +0.5f, +0.1f, 0.0f, 0.0f, 1.0f};
+
+    GLuint VBO1, VAO1;
+
+    glGenBuffers(1, &VBO1);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
+    glGenVertexArrays(1, &VAO1);
+    glBindVertexArray(VAO1);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glEnableVertexArrayAttrib(VAO1, 0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(2 * sizeof(float)));
+    glEnableVertexArrayAttrib(VAO1, 1);
 
     // texture
     GLuint tex;
@@ -71,7 +93,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    unsigned char *data = stbi_load("assets/image/awesomeface.png", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("assets/image/wall.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
