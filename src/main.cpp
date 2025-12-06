@@ -12,7 +12,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stbimage/stb_image.h"
 
-float AlphaMultiplier = 0.01f;
+// Global Declarations
+float AlphaMultiplier = 0.2f;
+bool PrevUp = false;
+bool PrevDown = false;
+
 void ProcessInput(GLFWwindow *window);
 
 int main()
@@ -92,6 +96,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_set_flip_vertically_on_load(true);
 
     unsigned char *data = stbi_load("assets/image/wall.jpg", &width, &height, &nrChannels, 0);
     if (data)
@@ -143,6 +148,10 @@ int main()
     glUniform1i(glGetUniformLocation(OurShader.ID, "tex1"), 0);
     glUniform1i(glGetUniformLocation(OurShader.ID, "tex2"), 1);
 
+    glm::mat4 trans(1.0f);
+    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(trans));
+
     // rendering loop
     while (!glfwWindowShouldClose(window))
     {
@@ -156,13 +165,13 @@ int main()
         // rendering commands
         OurShader.useID();
         glUniform1f(glGetUniformLocation(OurShader.ID, "mul"), AlphaMultiplier); // 1f -> float is sent
-
+        
         // ...
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, tex2);
-
+        
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
