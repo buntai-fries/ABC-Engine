@@ -37,6 +37,7 @@ target_include_directories(ABC_Engine PRIVATE
     ${CMAKE_SOURCE_DIR}/dependencies/glad
     ${CMAKE_SOURCE_DIR}/dependencies/GLFW
     ${CMAKE_SOURCE_DIR}/dependencies/stbimage
+    ${CMAKE_SOURCE_DIR}/dependencies/glm
 )
 
 # Link glfw manually (since it's not system-installed)
