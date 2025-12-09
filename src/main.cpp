@@ -18,12 +18,19 @@ bool PrevUp = false;
 bool PrevDown = false;
 
 void ProcessInput(GLFWwindow *window);
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+
+GLuint width = 720;
+GLuint height = 500;
 
 int main()
 {
     glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *window = glfwCreateWindow(720, 500, "ABC Engine", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(width, height, "ABC Engine", NULL, NULL);
     if (!window)
     {
         std::cout << "Error creating the windows.\n"
@@ -33,6 +40,7 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window); // loads the glad which is below
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -48,15 +56,17 @@ int main()
 
     // vertex data
     float vertices[] = {
-        // position   //    color       // texture
-        -0.5f, +0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        +0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        +0.5f, +0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f};
+        // positions  // texture coords
+        +0.5f, +0.5f, 1.0f, 1.0f, // top right
+        +0.5f, -0.5f, 1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, // bottom left
+        -0.5f, +0.5f, 0.0f, 1.0f  // top left
+    };
 
     GLuint indices[] = {
-        0, 1, 2,
-        2, 3, 0};
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
 
     GLuint VBO, VAO, EBO; // declaration
 
@@ -75,14 +85,11 @@ int main()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Set attributes
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void *)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void *)(5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
 
     // texture
     GLuint tex1, tex2;
@@ -148,13 +155,11 @@ int main()
     glUniform1i(glGetUniformLocation(OurShader.ID, "tex1"), 0);
     glUniform1i(glGetUniformLocation(OurShader.ID, "tex2"), 1);
 
-    glm::mat4 trans(1.0f);
-    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(trans));
-
     // rendering loop
     while (!glfwWindowShouldClose(window))
     {
+        using namespace glm;
+
         // Input Commands
         ProcessInput(window);
 
@@ -165,13 +170,26 @@ int main()
         // rendering commands
         OurShader.useID();
         glUniform1f(glGetUniformLocation(OurShader.ID, "mul"), AlphaMultiplier); // 1f -> float is sent
-        
+
         // ...
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, tex2);
-        
+
+        mat4 model = mat4(1.0f);
+        model = rotate(model, radians(-55.0f), vec3(1.0f, 0.0f, 0.0f));
+
+        mat4 view = mat4(1.0f);
+        view = translate(view, vec3(0.0f, 0.0f, -3.0f));
+
+        mat4 projection = mat4(1.0f);
+        projection = perspective(radians(45.0f), (float)width/(float)height, 0.1f, 100.0f);
+
+        glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "view"), 1, GL_FALSE, value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
+
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -204,4 +222,9 @@ void ProcessInput(GLFWwindow *window)
         AlphaMultiplier = std::max(AlphaMultiplier - 0.01f, 0.0f); // clamp the value
         std::cout << "\nThe value of: " << AlphaMultiplier << std::endl;
     }
+}
+
+void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }
