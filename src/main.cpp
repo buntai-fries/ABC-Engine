@@ -219,24 +219,26 @@ int main()
         glBindTexture(GL_TEXTURE_2D, tex2);
 
         mat4 view = mat4(1.0f);
-        view = translate(view, vec3(0.0f, 0.0f, -3.0f));
+        view = translate(view, vec3(0.0f, 0.0f, -5.0f));
         glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "view"), 1, GL_FALSE, value_ptr(view));
 
         mat4 projection = mat4(1.0f);
-        projection = perspective(radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+        projection = perspective(radians(50.0f), (float)width / (float)height, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
 
         glBindVertexArray(VAO);
+        // Spawn more cubes !!!
         for (GLuint i = 0; i < 10; i++)
         {
             mat4 model = mat4(1.0f);
             model = translate(model, vec3(cubePositions[i]));
-            float angle = 20 * i;
-            model = rotate(model, (float)glfwGetTime() * radians(angle), vec3(1.0f, 0.0f, 1.0f));
+            float angle = 0.0f;
+            angle = i % 3 == 0 ? (float)glfwGetTime() * 90.0f : 25.0f * i;
+            model = rotate(model, radians(angle), vec3(1.0f, 0.0f, 1.0f));
             glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "model"), 1, GL_FALSE, value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        
+
         // poll events
         glfwPollEvents();
         // swap buffer
