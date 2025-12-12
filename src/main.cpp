@@ -21,24 +21,23 @@ bool PrevDown = false;
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
-/*
-glm::vec3 CameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 CameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 CameraDirection = glm::normalize(CameraPos - CameraTarget);
-glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 CameraRight = glm::normalize(glm::cross(up, CameraDirection));
-glm::vec3 CameraUp = glm::cross(CameraDirection, CameraRight);
-*/
-
 glm::vec3 CameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 CameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 CameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 CameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+
+GLboolean FirstMouse = true;
+GLfloat yaw = -90.0f;
+GLfloat pitch = 0.0f;
 
 void ProcessInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void mouse_callback(GLFWwindow *window, double xPos, double yPos);
 
-GLuint width = 720;
-GLuint height = 500;
+GLuint width = 1920;
+GLuint height = 1080;
+
+float LastX = float(width)/2.0f;
+float LastY = float(height)/2.0f;
 
 int main()
 {
@@ -58,6 +57,8 @@ int main()
     }
     glfwMakeContextCurrent(window); // loads the glad which is below
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback); // this provides xPos and yPos
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -149,7 +150,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char *data = stbi_load("assets/image/wall.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("assets/image/11635.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -175,6 +176,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+
     data = stbi_load("assets/image/awesomeface.png", &width, &height, &nrChannels, 0);
     if (data)
     {
@@ -197,7 +199,7 @@ int main()
     OurShader.useID();
 
     glUniform1i(glGetUniformLocation(OurShader.ID, "tex1"), 0);
-    glUniform1i(glGetUniformLocation(OurShader.ID, "tex2"), 1);
+    //glUniform1i(glGetUniformLocation(OurShader.ID, "tex2"), 1);
 
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f, 0.0f, 0.0f),
@@ -236,8 +238,8 @@ int main()
         // ...
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, tex2);
+        //glActiveTexture(GL_TEXTURE1);
+        //glBindTexture(GL_TEXTURE_2D, tex2);
 
         mat4 view = mat4(1.0f);
         view = lookAt(CameraPos,
@@ -277,22 +279,20 @@ int main()
 
 void ProcessInput(GLFWwindow *window)
 {
-    // Manages Alpha Value
-    bool CurrentUp = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
-    if (CurrentUp) // increase
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
-        AlphaMultiplier = std::min(AlphaMultiplier + 0.01f, 1.0f); // clamp the value
-        std::cout << "\nThe value of: " << AlphaMultiplier << std::endl;
+        std::cout << "Exiting the application.";
+        glfwTerminate();
+        return;
     }
 
-    bool CurrentDown = glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
-    if (CurrentDown) // decrease
+    float CameraSpeed = 2.5f * deltaTime;
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
-        AlphaMultiplier = std::max(AlphaMultiplier - 0.01f, 0.0f); // clamp the value
-        std::cout << "\nThe value of: " << AlphaMultiplier << std::endl;
+        CameraSpeed *= 5.0f;
     }
 
-    const float CameraSpeed = 2.5f * deltaTime;
     // Manages the Camera Movement
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
@@ -313,9 +313,55 @@ void ProcessInput(GLFWwindow *window)
     {
         CameraPos += glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed;
     }
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        CameraPos += glm::normalize(CameraUp) * CameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    {
+        CameraPos -= glm::normalize(CameraUp) * CameraSpeed;
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow *window, double xPos, double yPos)
+{
+    if (FirstMouse)
+    {
+        LastX = xPos;
+        LastY = yPos;
+        FirstMouse = false;
+    }
+
+    float xOffSet = xPos - LastX;
+    std::cout << "LastX: " << LastX << "\t" << "xPos: " << xPos << std::endl;
+    float yOffSet = LastY - yPos;
+    std::cout << "LastY: " << LastY << "\t" << "yPos: " << yPos << std::endl;
+
+    LastX = xPos;
+    LastY = yPos;
+
+    float MouseSensitivity = 0.07f;
+    xOffSet *= MouseSensitivity;
+    yOffSet *= MouseSensitivity;
+
+    yaw += xOffSet;
+    pitch += yOffSet;
+
+    // constraints the pitch value for free camera:
+    pitch = std::min(89.0f, pitch);
+    pitch = std::max(-89.0f, pitch);
+
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+    CameraFront = glm::normalize(direction);
 }
