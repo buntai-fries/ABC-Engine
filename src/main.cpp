@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include "matrix.hpp"
 
 #include "Shader.hpp"
 
@@ -16,6 +17,22 @@
 float AlphaMultiplier = 0.2f;
 bool PrevUp = false;
 bool PrevDown = false;
+
+float deltaTime = 0.0f; // Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
+
+/*
+glm::vec3 CameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 CameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 CameraDirection = glm::normalize(CameraPos - CameraTarget);
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 CameraRight = glm::normalize(glm::cross(up, CameraDirection));
+glm::vec3 CameraUp = glm::cross(CameraDirection, CameraRight);
+*/
+
+glm::vec3 CameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 CameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 CameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 
 void ProcessInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -201,6 +218,10 @@ int main()
     {
         using namespace glm;
 
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         // Input Commands
         ProcessInput(window);
 
@@ -219,7 +240,9 @@ int main()
         glBindTexture(GL_TEXTURE_2D, tex2);
 
         mat4 view = mat4(1.0f);
-        view = translate(view, vec3(0.0f, 0.0f, -5.0f));
+        view = lookAt(CameraPos,
+                      CameraPos + CameraFront,
+                      CameraUp);
         glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "view"), 1, GL_FALSE, value_ptr(view));
 
         mat4 projection = mat4(1.0f);
@@ -254,6 +277,7 @@ int main()
 
 void ProcessInput(GLFWwindow *window)
 {
+    // Manages Alpha Value
     bool CurrentUp = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
     if (CurrentUp) // increase
     {
@@ -266,6 +290,28 @@ void ProcessInput(GLFWwindow *window)
     {
         AlphaMultiplier = std::max(AlphaMultiplier - 0.01f, 0.0f); // clamp the value
         std::cout << "\nThe value of: " << AlphaMultiplier << std::endl;
+    }
+
+    const float CameraSpeed = 2.5f * deltaTime;
+    // Manages the Camera Movement
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        CameraPos += CameraFront * CameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        CameraPos -= CameraFront * CameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        CameraPos -= glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        CameraPos += glm::normalize(glm::cross(CameraFront, CameraUp)) * CameraSpeed;
     }
 }
 
