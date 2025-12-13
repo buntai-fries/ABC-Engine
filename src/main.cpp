@@ -14,9 +14,6 @@
 #include "stbimage/stb_image.h"
 
 // Global Declarations
-float AlphaMultiplier = 0.2f;
-bool PrevUp = false;
-bool PrevDown = false;
 
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -167,39 +164,10 @@ int main()
     }
     stbi_image_free(data);
 
-    glGenTextures(1, &tex2);
-    glBindTexture(GL_TEXTURE_2D, tex2);
-
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-    data = stbi_load("assets/image/awesomeface.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        std::cout << "\nSuccessfully load the texture.\n"
-                  << std::endl;
-    }
-    else
-    {
-        std::cout << "\nFailed to load the face png.\n"
-                  << data << std::endl;
-        glfwTerminate();
-        return -4;
-    }
-    stbi_image_free(data);
-
     // ...
     OurShader.useID();
 
     glUniform1i(glGetUniformLocation(OurShader.ID, "tex1"), 0);
-    //glUniform1i(glGetUniformLocation(OurShader.ID, "tex2"), 1);
 
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f, 0.0f, 0.0f),
@@ -233,13 +201,10 @@ int main()
 
         // rendering commands
         OurShader.useID();
-        glUniform1f(glGetUniformLocation(OurShader.ID, "mul"), AlphaMultiplier); // 1f -> float is sent
 
         // ...
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex1);
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, tex2);
 
         mat4 view = mat4(1.0f);
         view = lookAt(CameraPos,
