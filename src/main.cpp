@@ -20,21 +20,23 @@ float lastFrame = 0.0f; // Time of last frame
 
 glm::vec3 CameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 CameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 CameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+glm::vec3 CameraPos = glm::vec3(0.0f, 0.0f, 5.0f);
 
 GLboolean FirstMouse = true;
 GLfloat yaw = -90.0f;
 GLfloat pitch = 0.0f;
 
-void ProcessInput(GLFWwindow *window);
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void mouse_callback(GLFWwindow *window, double xPos, double yPos);
-
 GLuint width = 1920;
 GLuint height = 1080;
 
-float LastX = float(width)/2.0f;
-float LastY = float(height)/2.0f;
+float LastX = float(width) / 2.0f;
+float LastY = float(height) / 2.0f;
+
+void ProcessInput(GLFWwindow *window);
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void mouse_callback(GLFWwindow *window, double xPos, double yPos);
+// creates the view/camera matrix
+glm::mat4 LookAt(glm::vec3 cameraPos, glm::vec3 cameraTarget, glm::vec3 cameraUp);
 
 int main()
 {
@@ -207,9 +209,8 @@ int main()
         glBindTexture(GL_TEXTURE_2D, tex1);
 
         mat4 view = mat4(1.0f);
-        view = lookAt(CameraPos,
-                      CameraPos + CameraFront,
-                      CameraUp);
+        view = LookAt(CameraPos, CameraPos + CameraFront, CameraUp);
+        //view = lookAt(CameraPos, CameraPos + CameraFront, CameraUp);
         glUniformMatrix4fv(glGetUniformLocation(OurShader.ID, "view"), 1, GL_FALSE, value_ptr(view));
 
         mat4 projection = mat4(1.0f);
@@ -305,9 +306,9 @@ void mouse_callback(GLFWwindow *window, double xPos, double yPos)
     }
 
     float xOffSet = xPos - LastX;
-    std::cout << "LastX: " << LastX << "\t" << "xPos: " << xPos << std::endl;
+    // std::cout << "LastX: " << LastX << "\t" << "xPos: " << xPos << std::endl;
     float yOffSet = LastY - yPos;
-    std::cout << "LastY: " << LastY << "\t" << "yPos: " << yPos << std::endl;
+    // std::cout << "LastY: " << LastY << "\t" << "yPos: " << yPos << std::endl;
 
     LastX = xPos;
     LastY = yPos;
@@ -329,4 +330,23 @@ void mouse_callback(GLFWwindow *window, double xPos, double yPos)
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
     CameraFront = glm::normalize(direction);
+}
+
+glm::mat4 LookAt(glm::vec3 cameraPos, glm::vec3 cameraTarget, glm::vec3 cameraUp)
+{
+    glm::mat4 rotation = glm::mat4(1.0f);
+    glm::mat4 translation = glm::mat4(1.0f);
+
+    glm::vec3 D = glm::normalize(cameraPos - cameraTarget); // Direction = D.x, D.y, D.z
+    glm::vec3 R = glm::normalize(glm::cross(cameraUp, D));  // R = R.x, R.y, R.z
+    glm::vec3 U = glm::cross(D, R);                         // Up = U.x, U.y, U.z
+
+    rotation = glm::mat4(+R.x, +U.x, +D.x, +0.0f,
+                         +R.y, +U.y, +D.y, +0.0f,
+                         +R.z, +U.z, +D.z, +0.0f,
+                         +0.0f, +0.0f, +0.0f, +1.0f);
+
+    translation = glm::translate(glm::mat4(+1.0f), -cameraPos);
+
+    return rotation * translation;
 }
