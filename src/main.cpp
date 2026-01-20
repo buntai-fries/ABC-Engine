@@ -338,7 +338,7 @@ glm::mat4 LookAt(glm::vec3 cameraPos, glm::vec3 cameraTarget, glm::vec3 cameraUp
     glm::mat4 translation = glm::mat4(1.0f);
 
     glm::vec3 D = glm::normalize(cameraPos - cameraTarget); // Direction = D.x, D.y, D.z
-    glm::vec3 R = glm::normalize(glm::cross(cameraUp, D));  // R = R.x, R.y, R.z
+    glm::vec3 R = glm::normalize(glm::cross(cameraUp, D));  // Right = R.x, R.y, R.z
     glm::vec3 U = glm::cross(D, R);                         // Up = U.x, U.y, U.z
 
     rotation = glm::mat4(+R.x, +U.x, +D.x, +0.0f,

@@ -10,21 +10,20 @@ Shader::Shader(const char *VertexPath, const char *FragmentPath)
 
     try
     {
-        {
-            vShaderFile.open(VertexPath);
-            fShaderFile.open(FragmentPath);
 
-            std::stringstream vShaderStream, fShaderStream;
+        vShaderFile.open(VertexPath);
+        fShaderFile.open(FragmentPath);
 
-            vShaderStream << vShaderFile.rdbuf();
-            fShaderStream << fShaderFile.rdbuf();
+        std::stringstream vShaderStream, fShaderStream;
 
-            vShaderFile.close();
-            fShaderFile.close();
+        vShaderStream << vShaderFile.rdbuf();
+        fShaderStream << fShaderFile.rdbuf();
 
-            vertexShaderCode = vShaderStream.str();
-            fragmentShaderCode = fShaderStream.str();
-        }
+        vShaderFile.close();
+        fShaderFile.close();
+
+        vertexShaderCode = vShaderStream.str();
+        fragmentShaderCode = fShaderStream.str();
     }
     catch (std::ifstream::failure e)
     {
