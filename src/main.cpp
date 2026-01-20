@@ -68,8 +68,8 @@ int main()
 
     std::cout << gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) << std::endl;
 
-    Shader lightShader("assets/shader/shader.vs", "assets/shader/shader.frag");
-    Shader lightCubeShader("assets/shader/shader_l.vs", "assets/shader/shader_l.frag");
+    Shader lightCubeShader("assets/shader/shader.vs", "assets/shader/shader.frag");
+    Shader lightShader("assets/shader/shader_l.vs", "assets/shader/shader_l.frag");
 
     // vertex data
     float vertices[] = {
@@ -195,7 +195,7 @@ int main()
     glDeleteVertexArrays(1, &VAO);
     glDeleteVertexArrays(1, &lightCubeVAO);
     glDeleteBuffers(1, &VBO);
-
+    // End the application
     glfwTerminate();
     return 0;
 }
