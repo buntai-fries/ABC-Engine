@@ -162,31 +162,48 @@ int main()
         // rendering commands
         lightShader.useID();
         lightShader.setVec3("lightPos", lightPos);  
-        lightShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightShader.setVec3("lightColor",  1.0f, 1.0f, 1.0f);
+        lightShader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
+        lightShader.setVec3("lightColor",  1.0f, 0.86f, 0.25f);
+
         // view
         mat4 view = mat4(1.0f);
         view = LookAt(CameraPos, CameraPos + CameraFront, CameraUp);
         glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "view"), 1, GL_FALSE, value_ptr(view));
+
         // projection
         mat4 projection = mat4(1.0f);
         projection = perspective(radians(50.0f), (float)width / (float)height, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
+
         // world transformation
-        glm::mat4 model = glm::mat4(1.0f);
+        mat4 model = mat4(1.0f);
+        model = rotate(mat4(1.0f), radians(glm::cos(float(glfwGetTime()))), vec3(1.0f));
         lightShader.setMat4("model", model);
+
+        // Normal Direction of surface for lightning
+        vec3 Normal = mat3(transpose(inverse(model))) * vec3(1.0f);
+        lightShader.setVec3("Normal", Normal);
+
+        // Specular Calculation
+        lightShader.setVec3("viewPos", CameraPos); 
+
         // render the cube
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        // also draw the lamp object
+        // Also, draw the lamp object.
         lightCubeShader.useID();
+        // projection
         lightCubeShader.setMat4("projection", projection);
+        // view
         lightCubeShader.setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        // model
+        model = mat4(1.0f);
+        model = translate(model, lightPos);
+        model = scale(model, vec3(0.1f)); // a smaller cube
         lightCubeShader.setMat4("model", model);
+
+        // render the cube
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
