@@ -1,51 +1,88 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 cmake_minimum_required(VERSION 3.26)
-project(ABC_Engine VERSION 1.0.0)
-
+project(ABC_Engine VERSION 1.0.0 LANGUAGES C CXX)
+# Prefer GLVND on platforms that support it (modern OpenGL handling)
+cmake_policy(SET CMP0072 NEW)
+# Language standards
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# For MSVC only
+# On MSVC, use /MD runtime (MultiThreadedDLL)
 if(MSVC)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")  # /MD
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
+# Output directory for the executable (all configs)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
+# OpenGL
 find_package(OpenGL REQUIRED)
 
-# Manager assets directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
-file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_SOURCE_DIR}/bin)
-
+# Sources
 add_executable(ABC_Engine
     src/glad.c
     src/main.cpp
     src/Shader.cpp
-    src/imgui/imgui.cpp
-    src/imgui/imgui_draw.cpp
-    src/imgui/imgui_tables.cpp
-    src/imgui/imgui_widgets.cpp
-    src/imgui/backends/imgui_impl_opengl3.cpp
-    src/imgui/backends/imgui_impl_glfw.cpp
 )
 
+# ---- Include paths ----
 target_include_directories(ABC_Engine PRIVATE
-    ${CMAKE_SOURCE_DIR}/src     
-    ${CMAKE_SOURCE_DIR}/src/imgui        
-    ${CMAKE_SOURCE_DIR}/src/imgui/backends
+    ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/dependencies
     ${CMAKE_SOURCE_DIR}/dependencies/glad
-    ${CMAKE_SOURCE_DIR}/dependencies/GLFW
+    ${CMAKE_SOURCE_DIR}/dependencies/GLFW/include
     ${CMAKE_SOURCE_DIR}/dependencies/stbimage
-      
 )
 
-# Link glfw manually (since it's not system-installed)
-target_link_directories(ABC_Engine PRIVATE
-    ${CMAKE_SOURCE_DIR}/dependencies/GLFW/lib
-)
+# ---- GLFW linking (cross‑platform) ----
+# Assumptions:
+#   Windows:  ${CMAKE_SOURCE_DIR}/dependencies/GLFW/lib/glfw3.lib (or glfw3dll.lib)
+#   Linux:    ${CMAKE_SOURCE_DIR}/dependencies/GLFW/lib-linux/libglfw.so
+#             (or system glfw in /usr/lib64, /usr/lib, /usr/local/lib)
 
-target_link_libraries(ABC_Engine PRIVATE
-    glfw3
-    OpenGL::GL
+if(WIN32)
+    set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/dependencies/GLFW/lib")
+
+    find_library(GLFW_LIB
+        NAMES glfw3 glfw3dll
+        PATHS "${GLFW_LIB_DIR}"
+        NO_DEFAULT_PATH
+        REQUIRED
+    )
+
+    target_link_libraries(ABC_Engine PRIVATE
+        ${GLFW_LIB}
+        OpenGL::GL
+    )
+
+elseif(UNIX AND NOT APPLE)
+    # Try vendored first, then common system paths
+    set(GLFW_LIB_DIR "${CMAKE_SOURCE_DIR}/dependencies/GLFW/lib-linux")
+
+    find_library(GLFW_LIB
+        NAMES glfw glfw3
+        PATHS
+            "${GLFW_LIB_DIR}"
+            /usr/lib64
+            /usr/lib
+            /usr/local/lib
+        REQUIRED
+    )
+
+    target_link_libraries(ABC_Engine PRIVATE
+        ${GLFW_LIB}
+        OpenGL::GL
+        X11
+        pthread
+        dl
+    )
+endif()
+
+# Copies the assets/ directory next to the built executable.
+add_custom_command(TARGET ABC_Engine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/assets"
+        "$<TARGET_FILE_DIR:ABC_Engine>/assets"
 )

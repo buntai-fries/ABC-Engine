@@ -1,8 +1,6 @@
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
-#include "imgui/backends/imgui_impl_glfw.h"
+
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <GLFW/GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -12,7 +10,6 @@
 #include "stbimage/stb_image.h"
 
 // Global Declarations
-
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
@@ -57,7 +54,7 @@ int main()
     }
     glfwMakeContextCurrent(window); // loads the glad which is below
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback); // this provides xPos and yPos
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -145,14 +142,6 @@ int main()
     // ...
     glEnable(GL_DEPTH_TEST);
 
-    // DearImGui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-
     // rendering loop
     while (!glfwWindowShouldClose(window))
     {
@@ -168,10 +157,6 @@ int main()
         // render
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
 
         // rendering commands
         lightShader.useID();
@@ -221,23 +206,11 @@ int main()
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        ImGui::Begin("Hello, Bitch.");
-        ImGui::Text("Sex is needed.");
-        ImGui::End();
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         // poll events
         glfwPollEvents();
         // swap buffer
         glfwSwapBuffers(window);
     }
-
-    // destroy the UI
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 
     // de-allocate 
     glDeleteVertexArrays(1, &VAO);
