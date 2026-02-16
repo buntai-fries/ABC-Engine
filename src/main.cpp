@@ -10,7 +10,6 @@
 #include "stbimage/stb_image.h"
 
 // Global Declarations
-
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
@@ -55,7 +54,7 @@ int main()
     }
     glfwMakeContextCurrent(window); // loads the glad which is below
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback); // this provides xPos and yPos
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
