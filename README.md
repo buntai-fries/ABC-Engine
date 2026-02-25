@@ -1,14 +1,16 @@
 ## ABC-Engine
 ```
-ABC-Engine is a lightweight, cross-platform C++ graphics engine built for 3D graphics rendering mainly for learning purpose.
-It leverages modern OpenGL for core rendering, GLFW for window/input management, and ImGui for an immediate-mode UI debug layer.
-Designed as a learning project for graphics programming enthusiasts, 
-it supports basic scene rendering, camera controls, and extensible architecture for features like ray tracing.
+ABC-Engine is a lightweight, cross-platform C++ graphics engine built for 3D graphics
+rendering mainly for learning purpose. It leverages modern OpenGL for core rendering,
+GLFW for window/input management, and ImGui for an immediate-mode UI debug layer.
+Designed as a learning project for graphics programming enthusiasts, it supports basic
+scene rendering, camera controls, and extensible architecture for features like ray tracing.
 ```
 
 ## Features:
 ```
-- Modern OpenGL Rendering**: Vertex/fragment shaders, VAOs/VBOs, textures, and framebuffer support.
+- Modern OpenGL Rendering**: Vertex/fragment shaders, VAOs/VBOs, textures, and
+  framebuffer support.
 - GLFW Integration**: Cross-platform window creation, input handling (keyboard/mouse).
 - ImGui Debug UI**: Real-time controls for camera, lighting, and rendering params.
 - CMake Build System**: Easy cross-platform builds (Windows/Linux).
@@ -84,6 +86,6 @@ ABC-Engine/
 ## Acknowledgments
 ```
 This project is inspired by [LearnOpenGL](https://learnopengl.com).
-And many thanks to GLFW/ImGui teams!
+And many thanks to GLFW/ImGui/GLAD teams!
 ```
 
