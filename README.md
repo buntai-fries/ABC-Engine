@@ -73,16 +73,6 @@ ABC-Engine/
 └── README.md              # This file!
 ```
 
-## Roadmap
-```
-- [ ] PBR material system
-- [ ] Ray tracing (hybrid rasterization/RT)
-- [ ] Asset importer (glTF/OBJ)
-- [ ] Vulkan backend
-- [ ] Editor mode
-```
-(Note: I might add new features or remove the existing one in the RoadMap.)
-
 ## Acknowledgments
 ```
 This project is inspired by [LearnOpenGL](https://learnopengl.com).
